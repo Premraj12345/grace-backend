@@ -231,17 +231,22 @@ def get_artist_albums_and_songs(client_id, client_secret, artist_id):
 
             if len(youtube_music_link) > 9:
               filepath = track_name+'-'+ get_video_id(youtube_music_link)+'.m4a'
-              os.system(f'youtube-dl {youtube_music_link} --extract-audio --audio-format m4a --audio-quality 128K')
-              upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
-            elif len(youtube_link) > 9:
-              filepath = track_name+'-'+ get_video_id(youtube_link)+'.m4a'
-              os.system(f'youtube-dl {youtube_link} --extract-audio --audio-format m4a --audio-quality 128K')
-              upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
-
-            else:
-              filepath = track_name+'-'+ get_video_id(youtube_video_link)+'.m4a'
-              os.system(f'youtube-dl {youtube_video_link} --extract-audio --audio-format m4a --audio-quality 128K')
-              upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
+              try:
+                os.system(f'youtube-dl {youtube_music_link} --extract-audio --audio-format m4a --audio-quality 128K')
+                upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
+              except:
+                if len(youtube_link) > 9:
+                  try:
+                    filepath = track_name+'-'+ get_video_id(youtube_link)+'.m4a'
+                    os.system(f'youtube-dl {youtube_link} --extract-audio --audio-format m4a --audio-quality 128K')
+                    upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
+                  except:
+                    try:
+                      filepath = track_name+'-'+ get_video_id(youtube_video_link)+'.m4a'
+                      os.system(f'youtube-dl {youtube_video_link} --extract-audio --audio-format m4a --audio-quality 128K')
+                      upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
+                    except:
+                      pass
 
 
 

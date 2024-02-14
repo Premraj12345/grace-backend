@@ -102,7 +102,7 @@ async def upload_audio_and_get_link(audio_path, track_document_id, track_name, t
       try:
         # Upload the audio file and get the file ID
         with open(audio_path, 'rb') as audio_file:
-            audio_message = await bot.send_audio(chat_id, audio=audio_file)
+            audio_message = await bot.send_audio(chat_id, audio=audio_file, timeout=1000)
             audio_file_id = audio_message.audio.file_id
             sleep(3)
             break

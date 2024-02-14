@@ -115,7 +115,7 @@ def upload_audio_and_get_link(audio_path, track_document_id, track_name, track_d
   file_path = file_info['result']['file_path']
 
   # Step 2: Construct the direct link
-  file_url = f"https://api.telegram.org/bot{bot_token}/{file_path}"
+  file_url = f"https://api.telegram.org/file/bot{bot_token}/{file_path}"
   language = "Telugu"
   track_duration_ms = str(track_duration_ms)
   create_song(track_document_id,track_name,language,track_duration_ms,file_url,album_document_id)

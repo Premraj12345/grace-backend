@@ -1,7 +1,7 @@
+
 import re
 from appwrite.client import Client
 from appwrite.services.databases import Databases
-from time import sleep
 
 def get_video_id(link):
   url = link
@@ -81,48 +81,49 @@ def create_song(document_id, name, language, length, audiourl, album_id):
 
 
 
-import nest_asyncio
-nest_asyncio.apply()
 
-import asyncio
-from telegram import Bot, InputFile
+import requests
+
 
 # Replace 'YOUR_BOT_TOKEN' with your actual bot token
 bot_token = '6361645598:AAF8Lioo2hS7tsGPXT0bTn5uT9pGF0gMAB8'
-bot = Bot(token=bot_token)
-
-async def upload_audio_and_get_link(audio_path, track_document_id, track_name, track_duration_ms, album_document_id ):
-    # Replace 'YOUR_CHAT_ID' with the chat ID where you want to send the audio
-    chat_id = '1876292868'
-
-    # Replace 'audio_path' with the path to your music/audio file
-    audio_path = audio_path
-
-    while True:
-      try:
-        # Upload the audio file and get the file ID
-        with open(audio_path, 'rb') as audio_file:
-            audio_message = await bot.send_audio(chat_id, audio=audio_file, timeout=1000)
-            audio_file_id = audio_message.audio.file_id
-            sleep(3)
-            break
-      except:
-        continue
 
 
-    # Step 1: Get the file path using getFile API
-    file_info = await bot.get_file(audio_file_id)
-    file_path = file_info.file_path
+url = f"https://api.telegram.org/bot{bot_token}/sendAudio"
+headers = {"accept":"application/json"}
+data = {"chat_id":"1876292868"}
 
-    # Step 2: Construct the direct link
-    file_url = file_path
-    language = "Telugu"
-    track_duration_ms = str(track_duration_ms)
-    create_song(track_document_id,track_name,language,track_duration_ms,file_url,album_document_id)
+
+def upload_audio_and_get_link(audio_path, track_document_id, track_name, track_duration_ms, album_document_id ):
+  # Replace 'YOUR_CHAT_ID' with the chat ID where you want to send the audio
+  chat_id = '1876292868'
+
+  # Replace 'audio_path' with the path to your music/audio file
+  audio_path = audio_path
+
+  # Upload the audio file and get the file ID
+  with open(audio_path, 'rb') as audio_file:
+      files = {"audio": audio_file}
+      resp = requests.post(url, headers=headers, params=data, files=files)
+      resp = resp.json()
+      # Extract file_id
+      file_id = resp['result']['audio']['file_id']
+      audio_file_id = file_id
+
+  url2 = f"https://api.telegram.org/bot{bot_token}/getFile?file_id={audio_file_id}"
+  file_info = requests.get(url2).json()
+  file_path = file_info['result']['file_path']
+
+  # Step 2: Construct the direct link
+  file_url = f"https://api.telegram.org/bot{bot_token}/{file_path}"
+  language = "Telugu"
+  track_duration_ms = str(track_duration_ms)
+  create_song(track_document_id,track_name,language,track_duration_ms,file_url,album_document_id)
 
 # Create and run the event loop
 #loop = asyncio.get_event_loop()
 #loop.run_until_complete(upload_audio_and_get_link())
+
 
 
 
@@ -231,19 +232,16 @@ def get_artist_albums_and_songs(client_id, client_secret, artist_id):
             if len(youtube_music_link) > 9:
               filepath = track_name+'-'+ get_video_id(youtube_music_link)+'.m4a'
               os.system(f'youtube-dl {youtube_music_link} --extract-audio --audio-format m4a --audio-quality 128K')
-              loop = asyncio.get_event_loop()
-              loop.run_until_complete(upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ))
+              upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
             elif len(youtube_link) > 9:
               filepath = track_name+'-'+ get_video_id(youtube_link)+'.m4a'
               os.system(f'youtube-dl {youtube_link} --extract-audio --audio-format m4a --audio-quality 128K')
-              loop = asyncio.get_event_loop()
-              loop.run_until_complete(upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ))
+              upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
 
             else:
               filepath = track_name+'-'+ get_video_id(youtube_video_link)+'.m4a'
               os.system(f'youtube-dl {youtube_video_link} --extract-audio --audio-format m4a --audio-quality 128K')
-              loop = asyncio.get_event_loop()
-              loop.run_until_complete(upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ))
+              upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
 
 
 

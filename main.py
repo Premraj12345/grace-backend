@@ -104,7 +104,7 @@ async def upload_audio_and_get_link(audio_path, track_document_id, track_name, t
             audio_message = await bot.send_audio(chat_id, audio=audio_file)
             audio_file_id = audio_message.audio.file_id
             break
-      except telegram.error.TimedOut:
+      except:
         continue
 
 

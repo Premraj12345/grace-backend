@@ -97,10 +97,16 @@ async def upload_audio_and_get_link(audio_path, track_document_id, track_name, t
     # Replace 'audio_path' with the path to your music/audio file
     audio_path = audio_path
 
-    # Upload the audio file and get the file ID
-    with open(audio_path, 'rb') as audio_file:
-        audio_message = await bot.send_audio(chat_id, audio=audio_file)
-        audio_file_id = audio_message.audio.file_id
+    while True:
+      try:
+        # Upload the audio file and get the file ID
+        with open(audio_path, 'rb') as audio_file:
+            audio_message = await bot.send_audio(chat_id, audio=audio_file)
+            audio_file_id = audio_message.audio.file_id
+            break
+      except telegram.error.TimedOut:
+        continue
+
 
     # Step 1: Get the file path using getFile API
     file_info = await bot.get_file(audio_file_id)

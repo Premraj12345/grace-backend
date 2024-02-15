@@ -2,6 +2,7 @@
 import re
 from appwrite.client import Client
 from appwrite.services.databases import Databases
+from ytmusicapi import YTMusic
 
 from time import sleep
 from pytube import YouTube
@@ -180,12 +181,27 @@ def get_odesli_info(spotify_track_link):
     return odesli_data
 
 def search_youtube_video(track_name, artist_name):
-    query = f"{track_name} {artist_name} official video"
+    query = f"{track_name} {artist_name}"
     video_search = VideosSearch(query, limit = 1)
 
     results = video_search.result()
     if results['result']:
         return results['result'][0]['link']
+    else:
+        return 'N/A'
+
+def search_youtube_music(track_name, artist_name):
+    ytmusic = YTMusic()
+
+    # Use the search method of the YTMusic API
+    results = ytmusic.search(f"{track_name} {artist_name}", filter="songs", limit=1)
+
+    if results:
+        # Extract the first result's videoId
+        video_id = results[0]['videoId']
+
+        # Create the YouTube Music video link
+        return f"https://music.youtube.com/watch?v={video_id}"
     else:
         return 'N/A'
 
@@ -294,7 +310,11 @@ def get_artist_albums_and_songs(client_id, client_secret, artist_id):
                             download_directly(youtube_link,filepath)
                             upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
                           except:
-                            pass
+                            try:
+                              filepath = track_name+'-'+ get_video_id(youtube_video_link)+'.m4a'
+                              download_directly(youtube_video_link,filepath)
+                              upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
+                            except:
 
 
 

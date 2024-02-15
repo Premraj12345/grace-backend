@@ -4,3 +4,4 @@ youtube-search-python
 nest_asyncio
 appwrite
 pytube
+ytmusicapi

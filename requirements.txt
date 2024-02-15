@@ -1,6 +1,6 @@
 youtube_dl
 spotipy
 youtube-search-python
-python-telegram-bot
 nest_asyncio
 appwrite
+pytube

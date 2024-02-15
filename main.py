@@ -235,7 +235,7 @@ def get_artist_albums_and_songs(client_id, client_secret, artist_id):
             track_duration_ms = track['duration_ms']
             track_audio_url = track['preview_url'] if 'preview_url' in track else 'N/A'
 
-            track_name_without_commas = artist_name.replace(',', '')
+            track_name_without_commas = track_name.replace(',', '')
             rand = random.randint(1,99)
             track_document_id = track_name_without_commas.replace(" ", "")+str(rand)
 
@@ -265,34 +265,36 @@ def get_artist_albums_and_songs(client_id, client_secret, artist_id):
                 filepath = track_name+'-'+ get_video_id(youtube_link)+'.m4a'
                 upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
               except:
-                filepath = track_name+'-'+ get_video_id(youtube_video_link)+'.m4a'
-                upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
                 try:
-                  os.system(f'youtube-dl {youtube_music_link} --extract-audio --audio-format m4a --audio-quality 128K')
-                  filepath = track_name+'-'+ get_video_id(youtube_music_link)+'.m4a'
+                  filepath = track_name+'-'+ get_video_id(youtube_video_link)+'.m4a'
                   upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
                 except:
                   try:
-                    filepath = track_name+'-'+ get_video_id(youtube_link)+'.m4a'
-                    os.system(f'youtube-dl {youtube_link} --extract-audio --audio-format m4a --audio-quality 128K')
+                    os.system(f'youtube-dl {youtube_music_link} --extract-audio --audio-format m4a --audio-quality 128K')
+                    filepath = track_name+'-'+ get_video_id(youtube_music_link)+'.m4a'
                     upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
                   except:
                     try:
-                      filepath = track_name+'-'+ get_video_id(youtube_music_link)+'.m4a'
-                      download_directly(youtube_music_link,filepath)
+                      filepath = track_name+'-'+ get_video_id(youtube_link)+'.m4a'
+                      os.system(f'youtube-dl {youtube_link} --extract-audio --audio-format m4a --audio-quality 128K')
                       upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
                     except:
                       try:
-                        filepath = track_name+'-'+ get_video_id(youtube_video_link)+'.m4a'
-                        os.system(f'youtube-dl {youtube_video_link} --extract-audio --audio-format m4a --audio-quality 128K')
+                        filepath = track_name+'-'+ get_video_id(youtube_music_link)+'.m4a'
+                        download_directly(youtube_music_link,filepath)
                         upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
                       except:
                         try:
-                          filepath = track_name+'-'+ get_video_id(youtube_link)+'.m4a'
-                          download_directly(youtube_link,filepath)
+                          filepath = track_name+'-'+ get_video_id(youtube_video_link)+'.m4a'
+                          os.system(f'youtube-dl {youtube_video_link} --extract-audio --audio-format m4a --audio-quality 128K')
                           upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
                         except:
-                          pass
+                          try:
+                            filepath = track_name+'-'+ get_video_id(youtube_link)+'.m4a'
+                            download_directly(youtube_link,filepath)
+                            upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
+                          except:
+                            pass
 
 
 

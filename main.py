@@ -315,7 +315,7 @@ def get_artist_albums_and_songs(client_id, client_secret, artist_id):
                               download_directly(youtube_video_link,filepath)
                               upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
                             except:
-
+                              pass
 
 
 

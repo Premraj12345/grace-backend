@@ -58,7 +58,7 @@ def create_artist(document_id, name, image_url):
 
 
 
-def create_album(document_id, name, year, artworkurl, artist_id):
+def create_album(document_id, name, year, artworkurl, artist_id,album_type):
   client = Client()
 
   (client
@@ -73,7 +73,8 @@ def create_album(document_id, name, year, artworkurl, artist_id):
       "name": name,
       "year": year,
       "artworkurl": artworkurl,
-      "artist": artist_id
+      "artist": artist_id,
+      "type":album_type
   }
 
   result = databases.create_document('gracedb', 'albums', document_id, data)
@@ -221,7 +222,7 @@ def get_artist_albums_and_songs(client_id, client_secret, artist_id):
         text_without_commas = album_name.replace(',', '')
         rand = random.randint(1,99)
         album_document_id = text_without_commas.replace(" ", "")+str(rand)
-        create_album(album_document_id,album_name,album_year,album_image_url,artist_document_id)
+        create_album(album_document_id,album_name,album_year,album_image_url,artist_document_id,album_type)
 
         print(f"\nAlbum: {album_name}, Year: {album_year}")
         print(f"Album Image URL: {album_image_url}")

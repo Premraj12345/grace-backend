@@ -3,7 +3,7 @@ import re
 from appwrite.client import Client
 from appwrite.services.databases import Databases
 
-
+from time import sleep
 from pytube import YouTube
 import os
 
@@ -142,7 +142,7 @@ def upload_audio_and_get_link(audio_path, track_document_id, track_name, track_d
   language = "Telugu"
   track_duration_ms = str(track_duration_ms)
   create_song(track_document_id,track_name,language,track_duration_ms,file_url,album_document_id)
-
+  sleep(9)
 # Create and run the event loop
 #loop = asyncio.get_event_loop()
 #loop.run_until_complete(upload_audio_and_get_link())
@@ -208,7 +208,7 @@ def get_artist_albums_and_songs(client_id, client_secret, artist_id):
     print(f"Artist Image URL: {artist_image_url}")
 
     # Get all albums for the artist
-    albums = sp.artist_albums(artist_id, album_type='album', limit=50)
+    albums = sp.artist_albums(artist_id, limit=50)
 
     for album in albums['items']:
         album_name = album['name']

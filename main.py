@@ -3,6 +3,29 @@ import re
 from appwrite.client import Client
 from appwrite.services.databases import Databases
 
+
+from pytube import YouTube
+import os
+
+# Function to download video using pytube
+def download_video(url, output_path):
+    yt = YouTube(url)
+    video = yt.streams.get_highest_resolution()
+    video.download(output_path)
+    return os.path.join(output_path, video.title + ".mp4")
+
+# Function to convert video to m4a using ffmpeg
+def convert_to_m4a(input_file, output_file):
+    command = f'ffmpeg -i "{input_file}" -vn -acodec copy "{output_file}"'
+    os.system(command)
+
+def download_directly(video_url,custom_title):
+  output_path = os.getcwd()  # Use the current working directory as the output path
+  video_file = download_video(video_url, output_path)
+  output_audio_file = os.path.join(output_path, f"{custom_title}")
+  convert_to_m4a(video_file, output_audio_file)
+  return output_audio_file
+
 def get_video_id(link):
   url = link
 
@@ -176,8 +199,9 @@ def get_artist_albums_and_songs(client_id, client_secret, artist_id):
     artist_images = artist['images'] if 'images' in artist else []
     artist_image_url = artist_images[0]['url'] if artist_images else 'N/A'
 
+    artist_name_without_commas = artist_name.replace(',', '')
     rand = random.randint(1,99)
-    artist_document_id = artist_name.replace(" ", "")+str(rand)
+    artist_document_id = artist_name_without_commas.replace(" ", "")+str(rand)
     create_artist(artist_document_id, artist_name, artist_image_url)
 
     print(f"Artist: {artist_name}")
@@ -189,12 +213,14 @@ def get_artist_albums_and_songs(client_id, client_secret, artist_id):
     for album in albums['items']:
         album_name = album['name']
         album_id = album['id']
+        album_type = album['album_type']
         album_year = album['release_date'].split('-')[0] if 'release_date' in album else 'N/A'
         album_images = album['images'] if 'images' in album else []
         album_image_url = album_images[0]['url'] if album_images else 'N/A'
 
+        text_without_commas = album_name.replace(',', '')
         rand = random.randint(1,99)
-        album_document_id = album_name.replace(" ", "")+str(rand)
+        album_document_id = text_without_commas.replace(" ", "")+str(rand)
         create_album(album_document_id,album_name,album_year,album_image_url,artist_document_id)
 
         print(f"\nAlbum: {album_name}, Year: {album_year}")
@@ -208,8 +234,9 @@ def get_artist_albums_and_songs(client_id, client_secret, artist_id):
             track_duration_ms = track['duration_ms']
             track_audio_url = track['preview_url'] if 'preview_url' in track else 'N/A'
 
+            track_name_without_commas = artist_name.replace(',', '')
             rand = random.randint(1,99)
-            track_document_id = track_name.replace(" ", "")+str(rand)
+            track_document_id = track_name_without_commas.replace(" ", "")+str(rand)
 
             print(f"  Track: {track_name}, Duration: {track_duration_ms} ms")
             print(f"  Audio URL: {track_audio_url}")
@@ -229,24 +256,43 @@ def get_artist_albums_and_songs(client_id, client_secret, artist_id):
             youtube_video_link = search_youtube_video(track_name, artist_name)
             print(f"  YouTube Video Link: {youtube_video_link}")
 
-            if len(youtube_music_link) > 9:
+            try:
               filepath = track_name+'-'+ get_video_id(youtube_music_link)+'.m4a'
+              upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
+            except:
               try:
-                os.system(f'youtube-dl {youtube_music_link} --extract-audio --audio-format m4a --audio-quality 128K')
+                filepath = track_name+'-'+ get_video_id(youtube_link)+'.m4a'
                 upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
               except:
-                if len(youtube_link) > 9:
+                filepath = track_name+'-'+ get_video_id(youtube_video_link)+'.m4a'
+                upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
+                try:
+                  os.system(f'youtube-dl {youtube_music_link} --extract-audio --audio-format m4a --audio-quality 128K')
+                  filepath = track_name+'-'+ get_video_id(youtube_music_link)+'.m4a'
+                  upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
+                except:
                   try:
                     filepath = track_name+'-'+ get_video_id(youtube_link)+'.m4a'
                     os.system(f'youtube-dl {youtube_link} --extract-audio --audio-format m4a --audio-quality 128K')
                     upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
                   except:
                     try:
-                      filepath = track_name+'-'+ get_video_id(youtube_video_link)+'.m4a'
-                      os.system(f'youtube-dl {youtube_video_link} --extract-audio --audio-format m4a --audio-quality 128K')
+                      filepath = track_name+'-'+ get_video_id(youtube_music_link)+'.m4a'
+                      download_directly(youtube_music_link,filepath)
                       upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
                     except:
-                      pass
+                      try:
+                        filepath = track_name+'-'+ get_video_id(youtube_video_link)+'.m4a'
+                        os.system(f'youtube-dl {youtube_video_link} --extract-audio --audio-format m4a --audio-quality 128K')
+                        upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
+                      except:
+                        try:
+                          filepath = track_name+'-'+ get_video_id(youtube_link)+'.m4a'
+                          download_directly(youtube_link,filepath)
+                          upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
+                        except:
+                          pass
+
 
 
 

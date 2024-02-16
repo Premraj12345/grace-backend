@@ -128,24 +128,28 @@ def upload_audio_and_get_link(audio_path, track_document_id, track_name, track_d
   # Replace 'audio_path' with the path to your music/audio file
   audio_path = audio_path
 
-  # Upload the audio file and get the file ID
-  with open(audio_path, 'rb') as audio_file:
-      files = {"audio": audio_file}
-      resp = requests.post(url, headers=headers, params=data, files=files)
-      resp = resp.json()
-      # Extract file_id
-      file_id = resp['result']['audio']['file_id']
-      audio_file_id = file_id
+  try:
+    # Upload the audio file and get the file ID
+    with open(audio_path, 'rb') as audio_file:
+        files = {"audio": audio_file}
+        resp = requests.post(url, headers=headers, params=data, files=files)
+        resp = resp.json()
+        # Extract file_id
+        file_id = resp['result']['audio']['file_id']
+        audio_file_id = file_id
 
-  url2 = f"https://api.telegram.org/bot{bot_token}/getFile?file_id={audio_file_id}"
-  file_info = requests.get(url2).json()
-  file_path = file_info['result']['file_path']
+    url2 = f"https://api.telegram.org/bot{bot_token}/getFile?file_id={audio_file_id}"
+    file_info = requests.get(url2).json()
+    file_path = file_info['result']['file_path']
 
-  # Step 2: Construct the direct link
-  file_url = f"https://api.telegram.org/file/bot{bot_token}/{file_path}"
-  language = "Telugu"
-  track_duration_ms = str(track_duration_ms)
-  create_song(track_document_id,track_name,language,track_duration_ms,file_url,album_document_id,album_image_url, artist_name)
+    # Step 2: Construct the direct link
+    file_url = f"https://api.telegram.org/file/bot{bot_token}/{file_path}"
+    language = "Telugu"
+    track_duration_ms = str(track_duration_ms)
+    create_song(track_document_id,track_name,language,track_duration_ms,file_url,album_document_id,album_image_url, artist_name)
+    sleep(9)
+  except:
+    pass
   sleep(9)
 # Create and run the event loop
 #loop = asyncio.get_event_loop()

@@ -82,7 +82,7 @@ def create_album(document_id, name, year, artworkurl, artist_id,album_type):
 
 
 
-def create_song(document_id, name, language, length, audiourl, album_id):
+def create_song(document_id, name, language, length, audiourl, album_id,album_image_url, artist_name):
   client = Client()
 
   (client
@@ -97,7 +97,9 @@ def create_song(document_id, name, language, length, audiourl, album_id):
       "name": name,
       "language" : language,
       "audiourl" : audiourl,
-      "album" : album_id
+      "album" : album_id,
+      "albumartwork" : album_image_url,
+      "albumartistname": albumartistname
   }
   result = databases.create_document('gracedb', 'songs', document_id, data)
 
@@ -119,7 +121,7 @@ headers = {"accept":"application/json"}
 data = {"chat_id":"1876292868"}
 
 
-def upload_audio_and_get_link(audio_path, track_document_id, track_name, track_duration_ms, album_document_id ):
+def upload_audio_and_get_link(audio_path, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name):
   # Replace 'YOUR_CHAT_ID' with the chat ID where you want to send the audio
   chat_id = '1876292868'
 
@@ -143,7 +145,7 @@ def upload_audio_and_get_link(audio_path, track_document_id, track_name, track_d
   file_url = f"https://api.telegram.org/file/bot{bot_token}/{file_path}"
   language = "Telugu"
   track_duration_ms = str(track_duration_ms)
-  create_song(track_document_id,track_name,language,track_duration_ms,file_url,album_document_id)
+  create_song(track_document_id,track_name,language,track_duration_ms,file_url,album_document_id,album_image_url, artist_name)
   sleep(9)
 # Create and run the event loop
 #loop = asyncio.get_event_loop()
@@ -275,52 +277,51 @@ def get_artist_albums_and_songs(client_id, client_secret, artist_id):
 
             try:
               filepath = track_name+'-'+ get_video_id(youtube_music_link)+'.m4a'
-              upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
+              upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id,album_image_url, artist_name )
             except:
               try:
                 filepath = track_name+'-'+ get_video_id(youtube_link)+'.m4a'
-                upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
+                upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name)
               except:
                 try:
                   filepath = track_name+'-'+ get_video_id(youtube_video_link)+'.m4a'
-                  upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
+                  upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name)
                 except:
                   try:
                     os.system(f'youtube-dl {youtube_music_link} --extract-audio --audio-format m4a --audio-quality 128K')
                     filepath = track_name+'-'+ get_video_id(youtube_music_link)+'.m4a'
-                    upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
+                    upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name)
                   except:
                     try:
                       filepath = track_name+'-'+ get_video_id(youtube_link)+'.m4a'
                       os.system(f'youtube-dl {youtube_link} --extract-audio --audio-format m4a --audio-quality 128K')
-                      upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
+                      upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name)
                     except:
                       try:
                         filepath = track_name+'-'+ get_video_id(youtube_music_link)+'.m4a'
                         download_directly(youtube_music_link,filepath)
-                        upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
+                        upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name)
                       except:
                         try:
                           filepath = track_name+'-'+ get_video_id(youtube_video_link)+'.m4a'
                           os.system(f'youtube-dl {youtube_video_link} --extract-audio --audio-format m4a --audio-quality 128K')
-                          upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
+                          upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id,album_image_url, artist_name )
                         except:
                           try:
                             filepath = track_name+'-'+ get_video_id(youtube_link)+'.m4a'
                             download_directly(youtube_link,filepath)
-                            upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
+                            upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name)
                           except:
                             try:
                               filepath = track_name+'-'+ get_video_id(youtube_video_link)+'.m4a'
                               download_directly(youtube_video_link,filepath)
-                              upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id )
+                              upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id,album_image_url, artist_name )
                             except:
                               pass
 
 
 
 if __name__ == "__main__":
-    get_artist_albums_and_songs(CLIENT_ID, CLIENT_SECRET, ARTIST_ID)
     get_artist_albums_and_songs(CLIENT_ID, CLIENT_SECRET, "1wAnjuaT1lZ9ULjRJIq3rX")
     get_artist_albums_and_songs(CLIENT_ID, CLIENT_SECRET, "1XaWLxLjDeXKZx4LmHsQQf")
     get_artist_albums_and_songs(CLIENT_ID, CLIENT_SECRET, "1w8S83yGWdb6sN3s6mjg28")

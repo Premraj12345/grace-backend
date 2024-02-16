@@ -324,8 +324,8 @@ def get_artist_albums_and_songs(client_id, client_secret, artist_id):
 
 
 if __name__ == "__main__":
-    get_artist_albums_and_songs(CLIENT_ID, CLIENT_SECRET, "1wAnjuaT1lZ9ULjRJIq3rX")
-    get_artist_albums_and_songs(CLIENT_ID, CLIENT_SECRET, "1XaWLxLjDeXKZx4LmHsQQf")
+    #get_artist_albums_and_songs(CLIENT_ID, CLIENT_SECRET, "1wAnjuaT1lZ9ULjRJIq3rX")
+    #get_artist_albums_and_songs(CLIENT_ID, CLIENT_SECRET, "1XaWLxLjDeXKZx4LmHsQQf")
     get_artist_albums_and_songs(CLIENT_ID, CLIENT_SECRET, "1w8S83yGWdb6sN3s6mjg28")
     get_artist_albums_and_songs(CLIENT_ID, CLIENT_SECRET, "02m3PiiWBO9hWspWxZqB7k")
     get_artist_albums_and_songs(CLIENT_ID, CLIENT_SECRET, "7zRvtToaWinJSv96cbx3YU")

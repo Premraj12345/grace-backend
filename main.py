@@ -99,7 +99,7 @@ def create_song(document_id, name, language, length, audiourl, album_id,album_im
       "audiourl" : audiourl,
       "album" : album_id,
       "albumartwork" : album_image_url,
-      "albumartistname": albumartistname
+      "albumartistname": artist_name
   }
   result = databases.create_document('gracedb', 'songs', document_id, data)
 

@@ -77,7 +77,7 @@ def create_album(document_id, name, year, artworkurl, artist_id, album_type, art
 
 
 
-def create_song(document_id, name, language, length, audiourl, album_id,album_image_url, artist_name, artistimageurl, albumname, albumyear,albumtype):
+def create_song(document_id, name, language, length, audiourl, album_id ,album_image_url, artist_name, artistimageurl, albumname, albumyear,albumtype,artistid):
   client = Client()
 
   (client
@@ -96,6 +96,7 @@ def create_song(document_id, name, language, length, audiourl, album_id,album_im
       "albumartwork":album_image_url,
       "albumartistname" : artist_name,
       "albumid": album_id,
+      "artistid": artistid,
       "artistimageurl": artistimageurl,
       "albumname": albumname,
       "albumyear":albumyear ,
@@ -118,7 +119,7 @@ url = f"https://api.telegram.org/bot{bot_token}/sendAudio"
 headers = {"accept":"application/json"}
 
 
-def upload_audio_and_get_link(audio_path, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name,artistimageurl,albumname,albumyear,albumtype):
+def upload_audio_and_get_link(audio_path, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name,artistimageurl,albumname,albumyear,albumtype,artistid):
   # Replace 'YOUR_CHAT_ID' with the chat ID where you want to send the audio
   chat_id = '1876292868'
 
@@ -148,7 +149,7 @@ def upload_audio_and_get_link(audio_path, track_document_id, track_name, track_d
   file_url = f"https://api.telegram.org/file/bot{bot_token}/{file_path}"
   language = "Telugu"
   track_duration_ms = str(track_duration_ms)
-  create_song(track_document_id,track_name,language,track_duration_ms,file_url,album_document_id,album_image_url, artist_name,artistimageurl,albumname,albumyear,albumtype)
+  create_song(track_document_id,track_name,language,track_duration_ms,file_url,album_document_id,album_image_url, artist_name,artistimageurl,albumname,albumyear,albumtype,artistid)
   sleep(9)
 
 import spotipy
@@ -275,61 +276,61 @@ def get_artist_albums_and_songs(client_id, client_secret, artist_id):
 
             try:
               filepath = track_name+'-'+ get_video_id(youtube_music_link)+'.m4a'
-              result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id,album_image_url, artist_name, artist_image_url,album_name, album_year, album_type)
+              result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id,album_image_url, artist_name, artist_image_url,album_name, album_year, album_type,artist_document_id)
               if result == 'Failed':
                 continue
             except:
               try:
                 filepath = track_name+'-'+ get_video_id(youtube_link)+'.m4a'
-                result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name,artist_image_url,album_name, album_year, album_type)
+                result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name,artist_image_url,album_name, album_year, album_type,artist_document_id)
                 if result == 'Failed':
                   continue
               except:
                 try:
                   filepath = track_name+'-'+ get_video_id(youtube_video_link)+'.m4a'
-                  result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name,artist_image_url,album_name, album_year, album_type)
+                  result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name,artist_image_url,album_name, album_year, album_type,artist_document_id)
                   if result == 'Failed':
                     continue
                 except:
                   try:
                     os.system(f'youtube-dl {youtube_music_link} --extract-audio --audio-format m4a --audio-quality 128K')
                     filepath = track_name+'-'+ get_video_id(youtube_music_link)+'.m4a'
-                    result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name,artist_image_url,album_name, album_year, album_type)
+                    result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name,artist_image_url,album_name, album_year, album_type,artist_document_id)
                     if result == 'Failed':
                       continue
                   except:
                     try:
                       filepath = track_name+'-'+ get_video_id(youtube_link)+'.m4a'
                       os.system(f'youtube-dl {youtube_link} --extract-audio --audio-format m4a --audio-quality 128K')
-                      result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name,artist_image_url,album_name, album_year, album_type)
+                      result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name,artist_image_url,album_name, album_year, album_type,artist_document_id)
                       if result == 'Failed':
                         continue
                     except:
                       try:
                         filepath = track_name+'-'+ get_video_id(youtube_music_link)+'.m4a'
                         download_directly(youtube_music_link,filepath)
-                        result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name,artist_image_url,album_name, album_year, album_type)
+                        result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name,artist_image_url,album_name, album_year, album_type,artist_document_id)
                         if result == 'Failed':
                           continue
                       except:
                         try:
                           filepath = track_name+'-'+ get_video_id(youtube_video_link)+'.m4a'
                           os.system(f'youtube-dl {youtube_video_link} --extract-audio --audio-format m4a --audio-quality 128K')
-                          result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id,album_image_url, artist_name,artist_image_url ,album_name, album_year, album_type)
+                          result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id,album_image_url, artist_name,artist_image_url ,album_name, album_year, album_type,artist_document_id)
                           if result == 'Failed':
                             continue
                         except:
                           try:
                             filepath = track_name+'-'+ get_video_id(youtube_link)+'.m4a'
                             download_directly(youtube_link,filepath)
-                            result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name,artist_image_url,album_name, album_year, album_type)
+                            result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name,artist_image_url,album_name, album_year, album_type,artist_document_id)
                             if result == 'Failed':
                               continue
                           except:
                             try:
                               filepath = track_name+'-'+ get_video_id(youtube_video_link)+'.m4a'
                               download_directly(youtube_video_link,filepath)
-                              result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name,artist_image_url,album_name, album_year, album_type)
+                              result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name,artist_image_url,album_name, album_year, album_type,artist_document_id)
                               if result == 'Failed':
                                 continue
                             except:

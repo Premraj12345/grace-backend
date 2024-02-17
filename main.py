@@ -179,7 +179,7 @@ def get_odesli_info(spotify_track_link):
     return odesli_data
 
 def search_youtube_video(track_name, artist_name):
-    query = f"{track_name} {artist_name} official video"
+    query = f"{track_name} {artist_name}"
     video_search = VideosSearch(query, limit = 1)
 
     results = video_search.result()
@@ -271,6 +271,7 @@ def get_artist_albums_and_songs(client_id, client_secret, artist_id):
             print(f"  YouTube Link: {youtube_link}")
 
             # Search for the video on YouTube and get the link
+            youtube_video_link_from_yt = search_youtube_video(track_name,artist_name)
             youtube_video_link = search_youtube_music(track_name, artist_name)
             print(f"  YouTube Video Link: {youtube_video_link}")
 
@@ -334,7 +335,21 @@ def get_artist_albums_and_songs(client_id, client_secret, artist_id):
                               if result == 'Failed':
                                 continue
                             except:
-                              pass
+                              try:
+                                filepath = track_name+'-'+ get_video_id(youtube_video_link_from_yt)+'.m4a'
+                                os.system(f'youtube-dl {youtube_video_link_from_yt} --extract-audio --audio-format m4a --audio-quality 128K')
+                                result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name,artist_image_url,album_name, album_year, album_type,artist_document_id)
+                                if result == 'Failed':
+                                  continue
+                              except:
+                                try:
+                                  filepath = track_name+'-'+ get_video_id(youtube_video_link_from_yt)+'.m4a'
+                                  download_directly(youtube_video_link_from_yt,filepath)
+                                  result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name,artist_image_url,album_name, album_year, album_type,artist_document_id)
+                                  if result == 'Failed':
+                                    continue
+                                except:
+                                  pass
 
 if __name__ == "__main__":
     get_artist_albums_and_songs(CLIENT_ID, CLIENT_SECRET, ARTIST_ID)

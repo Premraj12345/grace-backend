@@ -31,8 +31,8 @@ async def main(bot_token):
             file_ids = get_ids()
             for file_id in file_ids:
                 file_info = await fetch_file_info(session, bot_token, file_id)
-                print(f"File ID: {file_id}, File Info: {file_info}")
 
+            print("Ok")
             # Introduce some delay between requests
             await asyncio.sleep(1)
 

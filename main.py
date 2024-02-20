@@ -36,7 +36,7 @@ def create_id(id,unique_id,track_id):
 
 def download_directly(video_url, custom_title):
     output_path = os.getcwd()  # Use the current working directory as the output path
-    custom_title = "".join(c for c in custom_title if c.isalnum() or c in (' ', '.', '-'))  # Remove invalid characters
+    #custom_title = "".join(c for c in custom_title if c.isalnum() or c in (' ', '.', '-'))  # Remove invalid characters
     output_audio_file = os.path.join(output_path, f"{custom_title}")  # Added file extension
 
     yt = YouTube(video_url)
@@ -48,16 +48,15 @@ def download_directly(video_url, custom_title):
 
 
 def get_video_id(link):
-  url = link
+    # Find the index of "v=" in the URL
+    index = link.find("v=")
 
-  # Use a regular expression to extract the video ID
-  match = re.search(r"youtube\.com/watch\?v=([a-zA-Z0-9_-]+)", url)
-
-  if match:
-      video_id = match.group(1)
-      return video_id
-  else:
-      return 1
+    if index != -1:
+        # Extract characters after "v="
+        video_id = link[index + 2:]
+        return video_id
+    else:
+        return None
 
 def create_artist(document_id, name, image_url):
   client = Client()
@@ -151,7 +150,7 @@ def upload_audio_and_get_link(audio_path, track_document_id, track_name, track_d
   # Replace 'audio_path' with the path to your music/audio file
   audio_path = audio_path
 
-  data = {"chat_id":"1876292868", 'file_unique_id': track_document_id}
+  data = {"chat_id":"1876292868"}
 
 
   # Upload the audio file and get the file ID
@@ -315,11 +314,14 @@ def get_artist_albums_and_songs(client_id, client_secret, artist_id):
               try:
                 filepath = track_name+'-'+ get_video_id(yt)+'.m4a'
                 download_directly(yt,filepath)
+                print('pytube donloaded')
+                sleep(3)
                 break
               except:
                 try:
                   filepath = track_name+'-'+ get_video_id(yt)+'.m4a'
                   os.system(f'youtube-dl {yt} --extract-audio --audio-format m4a --audio-quality 128K')
+                  sleep(3)
                   break
                 except:
                   continue
@@ -329,8 +331,11 @@ def get_artist_albums_and_songs(client_id, client_secret, artist_id):
                 result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id,album_image_url, artist_name, artist_image_url,album_name, album_year, album_type,artist_document_id)
                 if result == 'Failed':
                   pass
+                  print('failed')
                 break
               except:
+                print("upload_audio_and_get_link not did correctly")
+                sleep(3)
                 continue
 
             '''

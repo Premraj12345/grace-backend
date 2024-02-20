@@ -194,8 +194,15 @@ def get_odesli_info(spotify_track_link):
         'userCountry': 'IN'
     }
 
-    response = requests.get(ODESLI_API_URL, params=odesli_params)
-    odesli_data = response.json()
+    while True:
+      response = requests.get(ODESLI_API_URL, params=odesli_params)
+
+      if response.text:
+        odesli_data = response.json()
+        return odesli_data
+      else:
+        sleep(41)
+
 
     return odesli_data
 

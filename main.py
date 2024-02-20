@@ -6,7 +6,13 @@ from appwrite.services.databases import Databases
 from time import sleep
 from pytube import YouTube
 import os
-
+from ytmusicapi import YTMusic
+import requests
+import spotipy
+from spotipy.oauth2 import SpotifyClientCredentials
+import requests
+from youtubesearchpython import VideosSearch
+import random
 
 def create_id(id,unique_id,track_id):
   client = Client()
@@ -128,11 +134,6 @@ def create_song(document_id, name, language, length, audiourl, album_id ,album_i
 
 
 
-
-
-import requests
-
-
 # Replace 'YOUR_BOT_TOKEN' with your actual bot token
 bot_token = '6361645598:AAF8Lioo2hS7tsGPXT0bTn5uT9pGF0gMAB8'
 
@@ -164,6 +165,7 @@ def upload_audio_and_get_link(audio_path, track_document_id, track_name, track_d
     audio_file_id = file_id
     unique_id = resp['result']['audio']['file_unique_id']
 
+
   url2 = f"https://api.telegram.org/bot{bot_token}/getFile?file_id={audio_file_id}"
   file_info = requests.get(url2).json()
   file_path = file_info['result']['file_path']
@@ -174,15 +176,9 @@ def upload_audio_and_get_link(audio_path, track_document_id, track_name, track_d
   track_duration_ms = str(track_duration_ms)
   create_song(track_document_id,track_name,language,track_duration_ms,file_url,album_document_id,album_image_url, artist_name,artistimageurl,albumname,albumyear,albumtype,artistid)
   create_id(file_id,unique_id,track_document_id)
+  os.system(f'rm {audio_path}')
   sleep(1)
 
-import spotipy
-from spotipy.oauth2 import SpotifyClientCredentials
-import requests
-from youtubesearchpython import VideosSearch
-import os
-
-import random
 
 CLIENT_ID = '809f33d70a1c41a5a060b9686f953036'
 CLIENT_SECRET = 'ffb68d777ada430c90aff2ebdc217075'
@@ -197,14 +193,8 @@ def get_odesli_info(spotify_track_link):
         'userCountry': 'IN'
     }
 
-    while True:
-      response = requests.get(ODESLI_API_URL, params=odesli_params)
-
-      if response.text:
-        odesli_data = response.json()
-        return odesli_data
-      else:
-        sleep(41)
+    response = requests.get(ODESLI_API_URL, params=odesli_params)
+    odesli_data = response.json()
 
     return odesli_data
 
@@ -217,8 +207,6 @@ def search_youtube_video(track_name, artist_name):
         return results['result'][0]['link']
     else:
         return 'N/A'
-
-from ytmusicapi import YTMusic
 
 def search_youtube_music(track_name, artist_name):
     ytmusic = YTMusic()
@@ -297,99 +285,46 @@ def get_artist_albums_and_songs(client_id, client_secret, artist_id):
             # Get YouTube Music or YouTube link
             youtube_music_link = odesli_info['links']['youtubeMusic']['url'] if 'youtubeMusic' in odesli_info['links'] else 'N/A'
             youtube_link = odesli_info['links']['youtube']['url'] if 'youtube' in odesli_info['links'] else 'N/A'
+            youtube_music_link_from_ytmusic = search_youtube_music(track_name, artist_name)
+            youtube_video_link_from_yt = search_youtube_video(track_name,artist_name)
 
             print(f"  YouTube Music Link: {youtube_music_link}")
             print(f"  YouTube Link: {youtube_link}")
+            print(f"  YouTube Music Link From YTMusic: {youtube_music_link_from_ytmusic}")
+            print(f"  YouTube Video Link From YT: {youtube_video_link_from_yt}")
 
-            # Search for the video on YouTube and get the link
-            youtube_video_link_from_yt = search_youtube_video(track_name,artist_name)
-            youtube_video_link = search_youtube_music(track_name, artist_name)
-            print(f"  YouTube Video Link: {youtube_video_link}")
+            only_youtube_music_links = [youtube_music_link,youtube_link,youtube_music_link_from_ytmusic]
 
-            try:
-              filepath = track_name+'-'+ get_video_id(youtube_music_link)+'.m4a'
-              result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id,album_image_url, artist_name, artist_image_url,album_name, album_year, album_type,artist_document_id)
-              if result == 'Failed':
-                continue
-            except:
+            youtube_links = [youtube_music_link,youtube_link,youtube_music_link_from_ytmusic,youtube_video_link_from_yt]
+
+            for ytmusic_link in only_youtube_music_links:
+              filepath = track_name+'-'+ get_video_id(ytmusic_link)+'.m4a'
               try:
-                filepath = track_name+'-'+ get_video_id(youtube_link)+'.m4a'
-                result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name,artist_image_url,album_name, album_year, album_type,artist_document_id)
+                download_directly(ytmusic_link,filepath)
+                result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id,album_image_url, artist_name, artist_image_url,album_name, album_year, album_type,artist_document_id)
                 if result == 'Failed':
                   continue
+                #os.system(f'rm {filepath}')
+                break
               except:
-                try:
-                  filepath = track_name+'-'+ get_video_id(youtube_video_link)+'.m4a'
-                  result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name,artist_image_url,album_name, album_year, album_type,artist_document_id)
-                  if result == 'Failed':
-                    continue
-                except:
-                  try:
-                    download_directly(youtube_music_link,filepath)
-
-                    filepath = track_name+'-'+ get_video_id(youtube_music_link)+'.m4a'
-                    result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name,artist_image_url,album_name, album_year, album_type,artist_document_id)
-                    if result == 'Failed':
-                      continue
-                  except:
-                    try:
-                      filepath = track_name+'-'+ get_video_id(youtube_link)+'.m4a'
-                      download_directly(youtube_link,filepath)
-
-                      result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name,artist_image_url,album_name, album_year, album_type,artist_document_id)
-                      if result == 'Failed':
-                        continue
-                    except:
-                      try:
-                        filepath = track_name+'-'+ get_video_id(youtube_music_link)+'.m4a'
-                        os.system(f'youtube-dl {youtube_music_link} --extract-audio --audio-format m4a --audio-quality 128K')
-                        result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name,artist_image_url,album_name, album_year, album_type,artist_document_id)
-                        if result == 'Failed':
-                          continue
-                      except:
-                        try:
-                          filepath = track_name+'-'+ get_video_id(youtube_video_link)+'.m4a'
-                          download_directly(youtube_video_link,filepath)
-
-                          result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id,album_image_url, artist_name,artist_image_url ,album_name, album_year, album_type,artist_document_id)
-                          if result == 'Failed':
-                            continue
-                        except:
-                          try:
-                            filepath = track_name+'-'+ get_video_id(youtube_link)+'.m4a'
-                            os.system(f'youtube-dl {youtube_link} --extract-audio --audio-format m4a --audio-quality 128K')
-                            result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name,artist_image_url,album_name, album_year, album_type,artist_document_id)
-                            if result == 'Failed':
-                              continue
-                          except:
-                            try:
-                              filepath = track_name+'-'+ get_video_id(youtube_video_link)+'.m4a'
-                              os.system(f'youtube-dl {youtube_video_link} --extract-audio --audio-format m4a --audio-quality 128K')
-                              result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name,artist_image_url,album_name, album_year, album_type,artist_document_id)
-                              if result == 'Failed':
-                                continue
-                            except:
-                              try:
-                                filepath = track_name+'-'+ get_video_id(youtube_video_link_from_yt)+'.m4a'
-                                download_directly(youtube_video_link_from_yt,filepath)
-
-                                result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name,artist_image_url,album_name, album_year, album_type,artist_document_id)
-                                if result == 'Failed':
-                                  continue
-                              except:
-                                try:
-                                  filepath = track_name+'-'+ get_video_id(youtube_video_link_from_yt)+'.m4a'
-                                  os.system(f'youtube-dl {youtube_video_link_from_yt} --extract-audio --audio-format m4a --audio-quality 128K')
-                                  result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id ,album_image_url, artist_name,artist_image_url,album_name, album_year, album_type,artist_document_id)
-                                  if result == 'Failed':
-                                    continue
-                                except:
-                                  pass
+                continue
+'''
+            for link in youtube_links:
+              filepath = track_name+'-'+ get_video_id(link)+'.m4a'
+              try:
+                os.system(f'youtube-dl {link} --extract-audio --audio-format m4a --audio-quality 128K')
+                result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id,album_image_url, artist_name, artist_image_url,album_name, album_year, album_type,artist_document_id)
+                if result == 'Failed':
+                  continue
+                #os.system(f'rm {filepath}')
+                break
+              except:
+                continue
+'''
 
 if __name__ == "__main__":
     get_artist_albums_and_songs(CLIENT_ID, CLIENT_SECRET, ARTIST_ID)
     get_artist_albums_and_songs(CLIENT_ID, CLIENT_SECRET, "1wAnjuaT1lZ9ULjRJIq3rX")
-    '''
     get_artist_albums_and_songs(CLIENT_ID, CLIENT_SECRET, "1XaWLxLjDeXKZx4LmHsQQf")
     get_artist_albums_and_songs(CLIENT_ID, CLIENT_SECRET, "1w8S83yGWdb6sN3s6mjg28")
     get_artist_albums_and_songs(CLIENT_ID, CLIENT_SECRET, "02m3PiiWBO9hWspWxZqB7k")
@@ -402,4 +337,4 @@ if __name__ == "__main__":
     get_artist_albums_and_songs(CLIENT_ID, CLIENT_SECRET, "42LJGLdvmjG2teUzhLkV48")
     get_artist_albums_and_songs(CLIENT_ID, CLIENT_SECRET, "2ZI6RrNaij9iVXKcV6kgsv")
     get_artist_albums_and_songs(CLIENT_ID, CLIENT_SECRET, "3nr5yEkaBmm6tVAgiuCr7W")
-    get_artist_albums_and_songs(CLIENT_ID, CLIENT_SECRET, "5imstv16Uz57btzlivDf9d")'''
+    get_artist_albums_and_songs(CLIENT_ID, CLIENT_SECRET, "5imstv16Uz57btzlivDf9d")

@@ -72,7 +72,8 @@ def create_artist(document_id, name, image_url):
 
   data = {
       "name": name,
-      "image_url" : image_url
+      "image_url" : image_url,
+      "language": "Telugu"
   }
   result = databases.create_document('gracedb', 'artists', document_id, data)
 
@@ -105,7 +106,7 @@ def create_album(document_id, name, year, artworkurl, artist_id, album_type, art
 
 
 
-def create_song(document_id, name, language, length, audiourl, album_id ,album_image_url, artist_name, artistimageurl, albumname, albumyear,albumtype,artistid):
+def create_song(document_id, name, language, length, audiourl, album_id ,album_image_url, artist_name, artistimageurl, albumname, albumyear,albumtype,artistid,file_id):
   client = Client()
 
   (client
@@ -128,7 +129,8 @@ def create_song(document_id, name, language, length, audiourl, album_id ,album_i
       "artistimageurl": artistimageurl,
       "albumname": albumname,
       "albumyear":albumyear ,
-      "albumtype": albumtype
+      "albumtype": albumtype,
+      "file_id":file_id
   }
   result = databases.create_document('gracedb', 'songs', document_id, data)
 
@@ -174,7 +176,7 @@ def upload_audio_and_get_link(audio_path, track_document_id, track_name, track_d
   file_url = f"https://api.telegram.org/file/bot{bot_token}/{file_path}"
   language = "Telugu"
   track_duration_ms = str(track_duration_ms)
-  create_song(track_document_id,track_name,language,track_duration_ms,file_url,album_document_id,album_image_url, artist_name,artistimageurl,albumname,albumyear,albumtype,artistid)
+  create_song(track_document_id,track_name,language,track_duration_ms,file_url,album_document_id,album_image_url, artist_name,artistimageurl,albumname,albumyear,albumtype,artistid,file_id)
   create_id(file_id,unique_id,track_document_id)
   os.system(f'rm "{audio_path}"')
   print('deleted')
@@ -195,14 +197,17 @@ def get_odesli_info(spotify_track_link):
     }
 
     while True:
-      response = requests.get(ODESLI_API_URL, params=odesli_params)
+      try:
+        response = requests.get(ODESLI_API_URL, params=odesli_params)
 
-      if response.text:
-        odesli_data = response.json()
-        return odesli_data
-      else:
-        sleep(41)
-
+        if response.text:
+          odesli_data = response.json()
+          return odesli_data
+        else:
+          sleep(7)
+          continue
+      except:
+        continue
 
     return odesli_data
 
@@ -305,17 +310,30 @@ def get_artist_albums_and_songs(client_id, client_secret, artist_id):
 
             youtube_links = [youtube_music_link,youtube_link,youtube_music_link_from_ytmusic,youtube_video_link_from_yt]
 
-            for ytmusic_link in youtube_links:
+            #download audio
+            for yt in youtube_links:
               try:
-                filepath = track_name+'-'+ get_video_id(ytmusic_link)+'.m4a'
-                download_directly(ytmusic_link,filepath)
+                filepath = track_name+'-'+ get_video_id(yt)+'.m4a'
+                download_directly(yt,filepath)
+                break
+              except:
+                try:
+                  filepath = track_name+'-'+ get_video_id(yt)+'.m4a'
+                  os.system(f'youtube-dl {yt} --extract-audio --audio-format m4a --audio-quality 128K')
+                  break
+                except:
+                  continue
+
+            for i in range(3):
+              try:
                 result = upload_audio_and_get_link(filepath, track_document_id, track_name, track_duration_ms, album_document_id,album_image_url, artist_name, artist_image_url,album_name, album_year, album_type,artist_document_id)
                 if result == 'Failed':
-                  continue
+                  pass
                 break
               except:
                 continue
-                '''
+
+            '''
                 for link in youtube_links:
                   try:
                     filepath = track_name+'-'+ get_video_id(link)+'.m4a'

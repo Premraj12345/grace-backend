@@ -31,7 +31,7 @@ def create_id(id,unique_id,track_id):
       "track-id": track_id
   }
 
-  result = databases.create_document('grace-data', 'ids', data)
+  result = databases.create_document('grace-data', 'ids',document_id=track_id, data=data)
 
 
 def download_directly(video_url, custom_title):

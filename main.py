@@ -7,6 +7,27 @@ from time import sleep
 from pytube import YouTube
 import os
 
+
+def create_id(id,unique_id,track_id):
+  client = Client()
+
+  (client
+    .set_endpoint('https://cloud.appwrite.io/v1') # Your API Endpoint
+    .set_project('grace-cron') # Your project ID
+    .set_key('e395ed05a7351d4f6dad840eca954a53c8fd713add863af127ba7d5c524c9b7fb85f4cf1cc8e6e9b2665ea0337abfa0e05cb6ccebb6a5e44801fab8d8f2368d3426adef6b00ba6c597d4a011acf05f424640a79af4c18c39a01370df644471759dda7a0c1059748556b3597aecc640235d9d7983877642ac89174c2bd840e63f') # Your secret API key
+  )
+
+  databases = Databases(client)
+
+  data = {
+      "file-id":id,
+      "file-unique-id": unique_id,
+      "track-id": track_id
+  }
+
+  result = databases.create_document('grace-data', 'ids', data)
+
+
 def download_directly(video_url, custom_title):
     output_path = os.getcwd()  # Use the current working directory as the output path
     custom_title = "".join(c for c in custom_title if c.isalnum() or c in (' ', '.', '-'))  # Remove invalid characters
@@ -141,6 +162,7 @@ def upload_audio_and_get_link(audio_path, track_document_id, track_name, track_d
     # Extract file_id
     file_id = resp['result']['audio']['file_id']
     audio_file_id = file_id
+    unique_id = resp['result']['audio']['file_unique_id']
 
   url2 = f"https://api.telegram.org/bot{bot_token}/getFile?file_id={audio_file_id}"
   file_info = requests.get(url2).json()
@@ -151,6 +173,7 @@ def upload_audio_and_get_link(audio_path, track_document_id, track_name, track_d
   language = "Telugu"
   track_duration_ms = str(track_duration_ms)
   create_song(track_document_id,track_name,language,track_duration_ms,file_url,album_document_id,album_image_url, artist_name,artistimageurl,albumname,albumyear,albumtype,artistid)
+  create_id(file_id,unique_id,track_document_id)
   sleep(1)
 
 import spotipy

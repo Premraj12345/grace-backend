@@ -36,7 +36,7 @@ def create_id(id,unique_id,track_id):
 
 def download_directly(video_url, custom_title):
     output_path = os.getcwd()  # Use the current working directory as the output path
-    #custom_title = "".join(c for c in custom_title if c.isalnum() or c in (' ', '.', '-'))  # Remove invalid characters
+    #custom_title = "".join(c for c in custom_title if c.isalnum() or c in ('.', '-'))  # Remove invalid characters
     output_audio_file = os.path.join(output_path, f"{custom_title}")  # Added file extension
 
     yt = YouTube(video_url)
@@ -247,8 +247,9 @@ def get_artist_albums_and_songs(client_id, client_secret, artist_id):
     artist_images = artist['images'] if 'images' in artist else []
     artist_image_url = artist_images[0]['url'] if artist_images else 'N/A'
 
+    artist_name_without_dash = artist_name.replace('-', '')
 
-    artist_name_without_commas = artist_name.replace(',', '')
+    artist_name_without_commas = artist_name_without_dash.replace(',', '')
     rand = random.randint(1,99)
     artist_document_id = artist_name_without_commas.replace(" ", "")+str(rand)
     create_artist(artist_document_id, artist_name, artist_image_url)
@@ -267,7 +268,9 @@ def get_artist_albums_and_songs(client_id, client_secret, artist_id):
         album_images = album['images'] if 'images' in album else []
         album_image_url = album_images[0]['url'] if album_images else 'N/A'
 
-        album_name_without_commas = album_name.replace(',', '')
+        album_name_without_dash = album_name.replace('-', '')
+
+        album_name_without_commas = album_name_without_dash.replace(',', '')
         rand = random.randint(1,99)
         album_document_id = album_name_without_commas.replace(" ", "")+str(rand)
         create_album(album_document_id,album_name,album_year,album_image_url,artist_document_id,album_type,artist_image_url,artist_name)
@@ -283,7 +286,9 @@ def get_artist_albums_and_songs(client_id, client_secret, artist_id):
             track_duration_ms = track['duration_ms']
             track_audio_url = track['preview_url'] if 'preview_url' in track else 'N/A'
 
-            track_name_without_commas = track_name.replace(',', '')
+            track_name_without_dash = track_name.replace('-', '')
+
+            track_name_without_commas = track_name_without_dash.replace(',', '')
             rand = random.randint(1,99)
             track_without_space = track_name_without_commas.replace(" ", "")+str(rand)
             track_document_id = ''.join(char for char in track_without_space if char not in '()')
@@ -353,12 +358,9 @@ def get_artist_albums_and_songs(client_id, client_secret, artist_id):
 
 
 if __name__ == "__main__":
-    get_artist_albums_and_songs(CLIENT_ID, CLIENT_SECRET, ARTIST_ID)
+    #get_artist_albums_and_songs(CLIENT_ID, CLIENT_SECRET, ARTIST_ID)
     get_artist_albums_and_songs(CLIENT_ID, CLIENT_SECRET, "1wAnjuaT1lZ9ULjRJIq3rX")
     get_artist_albums_and_songs(CLIENT_ID, CLIENT_SECRET, "1XaWLxLjDeXKZx4LmHsQQf")
-    get_artist_albums_and_songs(CLIENT_ID, CLIENT_SECRET, "1w8S83yGWdb6sN3s6mjg28")
-    get_artist_albums_and_songs(CLIENT_ID, CLIENT_SECRET, "02m3PiiWBO9hWspWxZqB7k")
-    get_artist_albums_and_songs(CLIENT_ID, CLIENT_SECRET, "7zRvtToaWinJSv96cbx3YU")
     get_artist_albums_and_songs(CLIENT_ID, CLIENT_SECRET, "3jUK1cBOUowwrQ4PGbRLFs")
     get_artist_albums_and_songs(CLIENT_ID, CLIENT_SECRET, "15iXlII4LWR2fHDLZ4dAow")
     get_artist_albums_and_songs(CLIENT_ID, CLIENT_SECRET, "0n9FqtIMcQl07VxdqpYVml")
